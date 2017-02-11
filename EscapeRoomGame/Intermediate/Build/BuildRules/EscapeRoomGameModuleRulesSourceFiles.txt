@@ -1,0 +1,3 @@
+/Volumes/DennisZinziEXT/Development/UnrealEngine/EscapeRoom/EscapeRoomGame/Source/EscapeRoomGame/EscapeRoomGame.Build.cs
+/Volumes/DennisZinziEXT/Development/UnrealEngine/EscapeRoom/EscapeRoomGame/Source/EscapeRoomGame.Target.cs
+/Volumes/DennisZinziEXT/Development/UnrealEngine/EscapeRoom/EscapeRoomGame/Source/EscapeRoomGameEditor.Target.cs
