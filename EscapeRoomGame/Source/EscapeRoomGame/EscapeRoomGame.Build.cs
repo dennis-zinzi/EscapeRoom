@@ -4,11 +4,14 @@ using UnrealBuildTool;
 
 public class EscapeRoomGame : ModuleRules
 {
+	private static readonly string[] ranges = new string[] { "Core", "CoreUObject", "Engine", "InputCore" };
+	private static readonly string[] emptyRange = new string[] {  };
+
 	public EscapeRoomGame(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(ranges);
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(emptyRange);
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
