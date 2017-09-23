@@ -27,14 +27,21 @@ class ESCAPEROOMGAME_API UOpenDoor : public UActorComponent
 		virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	private:
-		UPROPERTY(VisibleAnywhere)
+		UPROPERTY(EditAnywhere)
 		float OpenAngle;
 		
 		UPROPERTY(EditAnywhere)
 		ATriggerVolume *PressurePlate;
 	
-		UPROPERTY(EditAnywhere)
+		//UPROPERTY(EditAnywhere)
 		AActor *ActivationActor;
+		
+		UPROPERTY(EditAnywhere)
+		float DoorCloseDelay;
 
+		float LastOpenTime;
 		bool isOpen;
+
+
+		void RotateDoor(float angle);
 };
