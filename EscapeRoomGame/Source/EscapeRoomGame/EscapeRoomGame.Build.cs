@@ -6,6 +6,9 @@ public class EscapeRoomGame : ModuleRules
 {
 	public EscapeRoomGame(TargetInfo Target)
 	{
+        //Enable IWYU for v4.17+
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

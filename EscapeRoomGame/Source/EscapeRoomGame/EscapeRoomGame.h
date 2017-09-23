@@ -2,5 +2,6 @@
 
 #pragma once
 
-#include "Engine.h"
-
+//Disabled for IWYU for v4.17+ (no monolithic headers)
+//#include "Engine.h"
+#include "CoreMinimal.h"

@@ -8,13 +8,17 @@ public class EscapeRoomGameEditorTarget : TargetRules
 	public EscapeRoomGameEditorTarget(TargetInfo Target)
 	{
 		Type = TargetType.Editor;
-	}
 
-	//
-	// TargetRules interface.
-	//
+        //Enable IWYU for v4.17+
+        bUseUnityBuild = false;
+        bUsePCHFiles = false;
+    }
 
-	public override void SetupBinaries(
+    //
+    // TargetRules interface.
+    //
+
+    public override void SetupBinaries(
 		TargetInfo Target,
 		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
 		ref List<string> OutExtraModuleNames
