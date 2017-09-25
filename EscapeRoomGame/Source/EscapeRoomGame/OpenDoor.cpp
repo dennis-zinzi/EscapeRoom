@@ -45,7 +45,10 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	
 	if(isOpen){
-		if(GetWorld()->GetTimeSeconds() - LastOpenTime > DoorCloseDelay){
+		if(PressurePlate->IsOverlappingActor(ActivationActor)){
+			LastOpenTime = GetWorld()->GetTimeSeconds();
+		}
+		else if(GetWorld()->GetTimeSeconds() - LastOpenTime > DoorCloseDelay){
 			RotateDoor(OpenAngle);
 		}
 	}
