@@ -3,6 +3,7 @@
 #include "OpenDoor.h"
 //#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -14,10 +15,11 @@ UOpenDoor::UOpenDoor()
 	// ...
 	OpenAngle = 75.0f;
 	PressurePlate = nullptr;
-	ActivationActor = nullptr;
+	//ActivationActor = nullptr;
 	isOpen = false;
 	DoorCloseDelay = 10.0f;
 	LastOpenTime = 0.0f;
+	MassToOpen = 50.0f;
 }
 
 
@@ -27,7 +29,7 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 
 	//Get Player Actor
-	ActivationActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	//ActivationActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -37,15 +39,16 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//Poll the Trigger Volume
+	
 	//Open Door if ActivationActor is in the volume
-	if(!isOpen && PressurePlate->IsOverlappingActor(ActivationActor)){
+	if(!isOpen && GetTotalMassOnPlate() >= MassToOpen){//PressurePlate->IsOverlappingActor(ActivationActor)){
 		RotateDoor(-OpenAngle);
 		LastOpenTime = GetWorld()->GetTimeSeconds();
 	}
 
 	
 	if(isOpen){
-		if(PressurePlate->IsOverlappingActor(ActivationActor)){
+		if(GetTotalMassOnPlate() >= MassToOpen){//PressurePlate->IsOverlappingActor(ActivationActor)){
 			LastOpenTime = GetWorld()->GetTimeSeconds();
 		}
 		else if(GetWorld()->GetTimeSeconds() - LastOpenTime > DoorCloseDelay){
@@ -60,4 +63,20 @@ void UOpenDoor::RotateDoor(float angle){
 	GetOwner()->AddActorLocalRotation(FRotator(0.0f, angle, 0.0f));
 
 	isOpen = angle >= 0.0f ? false : true;
+}
+
+float UOpenDoor::GetTotalMassOnPlate() const
+{
+	float TotMass = 0.0f;
+
+	//Find all overlapping Actors
+	TArray<AActor*> ActorsOnPlate;
+	PressurePlate->GetOverlappingActors(ActorsOnPlate);
+
+	//Iterate through the actors and add their masses
+	for(const auto a : ActorsOnPlate){
+		TotMass += a->FindComponentByClass<UPrimitiveComponent>()->CalculateMass();
+	}
+	UE_LOG(LogClass, Warning, TEXT("Tot Mass: %f"), TotMass);
+	return TotMass;
 }

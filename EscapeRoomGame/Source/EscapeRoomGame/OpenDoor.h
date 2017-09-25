@@ -34,7 +34,10 @@ class ESCAPEROOMGAME_API UOpenDoor : public UActorComponent
 		ATriggerVolume *PressurePlate;
 	
 		//UPROPERTY(EditAnywhere)
-		AActor *ActivationActor;
+		//AActor *ActivationActor;
+
+		UPROPERTY(EditAnywhere)
+		float MassToOpen;
 		
 		UPROPERTY(EditAnywhere)
 		float DoorCloseDelay;
@@ -42,6 +45,8 @@ class ESCAPEROOMGAME_API UOpenDoor : public UActorComponent
 		float LastOpenTime;
 		bool isOpen;
 
-
+		//Rotates Door
 		void RotateDoor(float angle);
+		//Returns total mass on the trigger volume (in kg)
+		float GetTotalMassOnPlate() const;
 };

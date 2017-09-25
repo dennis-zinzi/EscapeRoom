@@ -9,6 +9,16 @@
 #include <string>
 #include "Grabber.generated.h"
 
+USTRUCT()
+struct FLineTrace{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FVector start;
+	
+	UPROPERTY()
+	FVector end;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPEROOMGAME_API UGrabber : public UActorComponent
@@ -28,26 +38,29 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		
-	private:
-		//How far ahead of the player can we reach to grab (cm)
-		UPROPERTY(EditAnywhere)
-		float reach;
+private:
+	//How far ahead of the player can we reach to grab (cm)
+	UPROPERTY(EditAnywhere)
+	float reach;
 
-		UPhysicsHandleComponent *PhysicsHandle;
-		UInputComponent *InputComp;
+	UPhysicsHandleComponent *PhysicsHandle;
+	UInputComponent *InputComp;
 	
-		//Get hit for first physics body in reach
-		FHitResult GetFirstPhysicsBodyInReach() const;
+	//Get hit for first physics body in reach
+	FHitResult GetFirstPhysicsBodyInReach() const;
 
-		//Ray-cast and grab what's in reach
-		void GrabFunc();
+	//Ray-cast and grab what's in reach
+	void GrabFunc();
 
-		//Realease grab/hold of object
-		void ReleaseFunc();
+	//Realease grab/hold of object
+	void ReleaseFunc();
 
-		//Finds (assumed) attached component
-		template<typename T>
-		T* FindComponent();
+	//Finds (assumed) attached component
+	template<typename T>
+	T* FindComponent();
+
+	//Returns the line trace start and end positions
+	FLineTrace GetLineTrace() const;
 };
 
 
