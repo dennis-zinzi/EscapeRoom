@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class EscapeRoomGame : ModuleRules
 {
-	public EscapeRoomGame(TargetInfo Target)
+	public EscapeRoomGame(ReadOnlyTargetRules Target)
 	{
         //Enable IWYU for v4.17+
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;

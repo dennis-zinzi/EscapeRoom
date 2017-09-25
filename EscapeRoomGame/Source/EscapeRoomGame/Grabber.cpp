@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Actor.h"
+#include "Components/PrimitiveComponent.h"
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -12,8 +13,9 @@ UGrabber::UGrabber()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 	reach = 75.0f;
+	PhysicsHandle = nullptr;
+	InputComp = nullptr;
 }
 
 
@@ -22,8 +24,15 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	UE_LOG(LogClass, Warning, TEXT("Grabber ready sir!"));
+	///Search for attached physics handle
+	PhysicsHandle = FindComponent<UPhysicsHandleComponent>();
+
+	InputComp = FindComponent<UInputComponent>();
+	if(InputComp){
+		///Bind Input actions
+		InputComp->BindAction("Grab", IE_Pressed, this, &UGrabber::GrabFunc);
+		InputComp->BindAction("Grab", IE_Released, this, &UGrabber::ReleaseFunc);
+	}
 }
 
 
@@ -32,16 +41,34 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	///If the physics handle is attached
+	if(PhysicsHandle->GrabbedComponent){
+		///Move the object that we're holding
+		///Get the player viewpoint
+		FVector pPos;
+		FRotator pRot;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(pPos, pRot);
+
+		//Calculate end of line trace
+		FVector LineTraceEnd = pPos + (pRot.Vector() * reach);
+
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+}
+
+
+FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
+{
 	///Get the player viewpoint
 	FVector pPos;
 	FRotator pRot;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(pPos, pRot);
 
-	//UE_LOG(LogClass, Warning, TEXT("Grabber:\n\tpos: %s \n\trot: %s"), *pPos.ToString(), *pRot.ToString());
+	//Calculate end of line trace
+	FVector LineTraceEnd = pPos + (pRot.Vector() * reach);
 	
 	///Draw a red trace in the world to visualise
-	FVector LineTraceEnd = pPos + (pRot.Vector() * reach);
-	UKismetSystemLibrary::DrawDebugLine(GetWorld(), pPos, LineTraceEnd, FLinearColor::Blue, 0.0f, 10.0f);
+	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), pPos, LineTraceEnd, FLinearColor::Blue, 0.0f, 10.0f);
 
 	///Line-trace/Ray-cast out to reach distance
 	FHitResult LineTraceHit;
@@ -50,11 +77,37 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
 
 	GetWorld()->LineTraceSingleByObjectType(LineTraceHit, pPos, LineTraceEnd, FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), TraceParams);
+	
+	return LineTraceHit;
+}
 
+void UGrabber::GrabFunc(){
+	UE_LOG(LogClass, Warning, TEXT("Grabbing"));
+
+	///Line Trace and see if we reach any actors with physics body collision channel set
 	///See what we hit
-	AActor *hitActor = LineTraceHit.GetActor();
-	if(hitActor){
-		UE_LOG(LogClass, Warning, TEXT("Hit: %s"), *hitActor->GetName());
+	FHitResult hitRes = GetFirstPhysicsBodyInReach();
+
+	AActor *hitActor = hitRes.GetActor();
+	if(!hitActor){
+		return;
+		//UE_LOG(LogClass, Warning, TEXT("Hit: %s"), *hitActor->GetName());
+	}
+
+	UPrimitiveComponent *GrabComponent = hitRes.GetComponent();
+
+	///If we hit something then attach a physics handle
+	if(GrabComponent){
+		///Attach physics handle
+		PhysicsHandle->GrabComponentAtLocationWithRotation(GrabComponent, NAME_None, GrabComponent->GetOwner()->GetActorLocation(), GrabComponent->GetOwner()->GetActorRotation());
 	}
 }
 
+void UGrabber::ReleaseFunc(){
+	UE_LOG(LogClass, Warning, TEXT("Releasing"));
+
+	///Remove physics handle
+	if(PhysicsHandle->GrabbedComponent){
+		PhysicsHandle->ReleaseComponent();
+	}
+}
