@@ -1,3 +1,0 @@
-D:\denni\Documents\EscapeRoom\EscapeRoomGame\Source\EscapeRoomGame\EscapeRoomGame.Build.cs
-D:\denni\Documents\EscapeRoom\EscapeRoomGame\Source\EscapeRoomGame.Target.cs
-D:\denni\Documents\EscapeRoom\EscapeRoomGame\Source\EscapeRoomGameEditor.Target.cs
