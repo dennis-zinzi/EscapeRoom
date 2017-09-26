@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OpenDoor.h"
-//#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Components/PrimitiveComponent.h"
 
@@ -12,13 +11,10 @@ UOpenDoor::UOpenDoor()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
-	OpenAngle = 75.0f;
+	//Initialize member variables
+	OpenAngle = -75.0f;
 	PressurePlate = nullptr;
-	//ActivationActor = nullptr;
 	isOpen = false;
-	DoorCloseDelay = 10.0f;
-	LastOpenTime = 0.0f;
 	MassToOpen = 50.0f;
 }
 
@@ -28,8 +24,11 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Get Player Actor
-	//ActivationActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	//Check Pressure Plate not null
+	if(!PressurePlate){
+		UE_LOG(LogClass, Error, TEXT("NO PRESSURE PLATE"));
+		return;
+	}
 }
 
 
@@ -38,32 +37,27 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//Poll the Trigger Volume
-	
-	//Open Door if ActivationActor is in the volume
-	if(!isOpen && GetTotalMassOnPlate() >= MassToOpen){//PressurePlate->IsOverlappingActor(ActivationActor)){
-		RotateDoor(-OpenAngle);
-		LastOpenTime = GetWorld()->GetTimeSeconds();
+	//Check Pressure Plate not null
+	if(!PressurePlate){ 
+		return; 
 	}
 
-	
-	if(isOpen){
-		if(GetTotalMassOnPlate() >= MassToOpen){//PressurePlate->IsOverlappingActor(ActivationActor)){
-			LastOpenTime = GetWorld()->GetTimeSeconds();
-		}
-		else if(GetWorld()->GetTimeSeconds() - LastOpenTime > DoorCloseDelay){
-			RotateDoor(OpenAngle);
-		}
+	//Open Door if enough mass on pressure plate and door is closed
+	if(!isOpen && GetTotalMassOnPlate() >= MassToOpen){
+		//Trigger Blueprint event
+		OnOpenDoor.Broadcast();
+		isOpen = true;
+	}
+
+	//Close door if not enough mass on pressure plate and door is open
+	if(isOpen && GetTotalMassOnPlate() < MassToOpen){
+		//Trigger Blueprint event
+		OnCloseDoor.Broadcast();
+		isOpen = false;
 	}
 
 }
 
-void UOpenDoor::RotateDoor(float angle){
-	//Find the owning object and rotate it
-	GetOwner()->AddActorLocalRotation(FRotator(0.0f, angle, 0.0f));
-
-	isOpen = angle >= 0.0f ? false : true;
-}
 
 float UOpenDoor::GetTotalMassOnPlate() const
 {
@@ -77,6 +71,6 @@ float UOpenDoor::GetTotalMassOnPlate() const
 	for(const auto a : ActorsOnPlate){
 		TotMass += a->FindComponentByClass<UPrimitiveComponent>()->CalculateMass();
 	}
-	UE_LOG(LogClass, Warning, TEXT("Tot Mass: %f"), TotMass);
+	//UE_LOG(LogClass, Warning, TEXT("Tot Mass: %f"), TotMass);
 	return TotMass;
 }

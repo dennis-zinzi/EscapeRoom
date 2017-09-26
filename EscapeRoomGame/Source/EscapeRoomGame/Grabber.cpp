@@ -42,7 +42,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	///If the physics handle is attached
-	if(PhysicsHandle->GrabbedComponent){
+	if(PhysicsHandle && PhysicsHandle->GrabbedComponent){
 		///Move the object that we're holding
 		PhysicsHandle->SetTargetLocation(GetLineTrace().end);
 	}
@@ -69,8 +69,8 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 }
 
 void UGrabber::GrabFunc(){
-	UE_LOG(LogClass, Warning, TEXT("Grabbing"));
-
+	//UE_LOG(LogClass, Warning, TEXT("Grabbing"));
+	if(!PhysicsHandle){ return; }
 	///Line Trace and see if we reach any actors with physics body collision channel set
 	///See what we hit
 	FHitResult HitRes = GetFirstPhysicsBodyInReach();
@@ -92,10 +92,10 @@ void UGrabber::GrabFunc(){
 }
 
 void UGrabber::ReleaseFunc(){
-	UE_LOG(LogClass, Warning, TEXT("Releasing"));
+	//UE_LOG(LogClass, Warning, TEXT("Releasing"));
 
 	///Remove physics handle
-	if(PhysicsHandle->GrabbedComponent){
+	if(PhysicsHandle && PhysicsHandle->GrabbedComponent){
 		PhysicsHandle->ReleaseComponent();
 	}
 }
